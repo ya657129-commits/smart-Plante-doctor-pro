@@ -2312,19 +2312,30 @@ async function analyzeTextWithAI(query) {
 // Local AI Analysis - Common plant diseases and symptoms database
 function localAIAnalysis(base64Image, mediaType) {
   // Random local diagnosis for image analysis
-  return generateLocalDiagnosis();
+  return generateLocalDiagnosis(null, currentLang);
 }
 
 function localAITextAnalysis(query) {
   // Analyze based on text symptoms
   const q = query.toLowerCase();
   
-  // Common symptom keyword mapping
+  // Common symptom keyword mapping (multilingual)
   const symptomKeywords = {
+    // English
     'brown': 'Leaf Blight', 'spot': 'Leaf Spot Disease', 'yellow': 'Chlorosis',
     'wilt': 'Wilt Disease', 'mold': 'Powdery Mildew', 'burn': 'Leaf Burn',
     'curl': 'Leaf Curl', 'rust': 'Rust Disease', 'blight': 'Late Blight',
-    'rot': 'Root Rot', 'white': 'Powdery Mildew', 'black': 'Black Spot'
+    'rot': 'Root Rot', 'white': 'Powdery Mildew', 'black': 'Black Spot',
+    // French
+    'brun': 'Leaf Blight', 'tache': 'Leaf Spot Disease', 'jaune': 'Chlorosis',
+    'flétrir': 'Wilt Disease', 'moisissure': 'Powdery Mildew', 'brûlure': 'Leaf Burn',
+    'rouler': 'Leaf Curl', 'rouille': 'Rust Disease', 'pourriture': 'Root Rot',
+    'blanc': 'Powdery Mildew', 'noir': 'Black Spot',
+    // Arabic
+    'بني': 'Leaf Blight', 'بقع': 'Leaf Spot Disease', 'أصفر': 'Chlorosis',
+    'ذبول': 'Wilt Disease', 'عفن': 'Powdery Mildew', 'حرق': 'Leaf Burn',
+    'انحناء': 'Leaf Curl', 'صدأ': 'Rust Disease', 'تعفن': 'Root Rot',
+    'أبيض': 'Powdery Mildew', 'أسود': 'Black Spot'
   };
   
   let disease = 'General Plant Stress';
@@ -2335,103 +2346,257 @@ function localAITextAnalysis(query) {
     }
   }
   
-  return generateLocalDiagnosis(disease);
+  return generateLocalDiagnosis(disease, currentLang);
 }
 
-function generateLocalDiagnosis(disease) {
-  const diseases = [
-    {
-      disease: 'Powdery Mildew',
-      emoji: '🤍', confidence: 85,
-      symptoms: ['White powdery coating on leaves', 'Leaf curling', 'Stunted growth'],
-      causes: ['Fungal infection', 'Warm, humid conditions', 'Poor air circulation'],
-      treatment: 'Apply fungicide spray, improve ventilation, reduce humidity',
-      prevention: 'Maintain proper spacing, water at soil level, prune infected areas'
-    },
-    {
-      disease: 'Leaf Spot Disease',
-      emoji: '🟤', confidence: 80,
-      symptoms: ['Brown/dark spots on leaves', 'Yellow halo around spots', 'Leaf yellowing'],
-      causes: ['Fungal or bacterial infection', 'Persistent leaf wetness', 'Poor drainage'],
-      treatment: 'Remove infected leaves, apply copper fungicide, improve watering habits',
-      prevention: 'Water from below, avoid overhead watering, remove fallen leaves'
-    },
-    {
-      disease: 'Root Rot',
-      emoji: '💀', confidence: 75,
-      symptoms: ['Wilting despite moist soil', 'Yellowing leaves', 'Mushy roots', 'Foul smell'],
-      causes: ['Overwatering', 'Poor soil drainage', 'Fungal pathogens'],
-      treatment: 'Improve drainage, reduce watering, repot in fresh soil if severe',
-      prevention: 'Use well-draining soil mix, water only when soil is dry, ensure pot drainage'
-    },
-    {
-      disease: 'Chlorosis (Iron Deficiency)',
-      emoji: '💛', confidence: 78,
-      symptoms: ['Yellow leaves with green veins', 'Pale new growth', 'Reduces vigor'],
-      causes: ['High pH soil', 'Poor drainage', 'Nutrient deficiency'],
-      treatment: 'Apply iron chelate spray, acidify soil, improve drainage',
-      prevention: 'Use appropriate soil pH, fertilize with balanced nutrients'
-    }
-  ];
+function generateLocalDiagnosis(specificDisease, lang) {
+  const diseases = {
+    en: [
+      {
+        disease: 'Powdery Mildew',
+        emoji: '🤍', confidence: 85,
+        symptoms: ['White powdery coating on leaves', 'Leaf curling', 'Stunted growth'],
+        causes: ['Fungal infection', 'Warm, humid conditions', 'Poor air circulation'],
+        treatment: 'Apply fungicide spray, improve ventilation, reduce humidity',
+        prevention: 'Maintain proper spacing, water at soil level, prune infected areas'
+      },
+      {
+        disease: 'Leaf Spot Disease',
+        emoji: '🟤', confidence: 80,
+        symptoms: ['Brown/dark spots on leaves', 'Yellow halo around spots', 'Leaf yellowing'],
+        causes: ['Fungal or bacterial infection', 'Persistent leaf wetness', 'Poor drainage'],
+        treatment: 'Remove infected leaves, apply copper fungicide, improve watering habits',
+        prevention: 'Water from below, avoid overhead watering, remove fallen leaves'
+      },
+      {
+        disease: 'Root Rot',
+        emoji: '💀', confidence: 75,
+        symptoms: ['Wilting despite moist soil', 'Yellowing leaves', 'Mushy roots', 'Foul smell'],
+        causes: ['Overwatering', 'Poor soil drainage', 'Fungal pathogens'],
+        treatment: 'Improve drainage, reduce watering, repot in fresh soil if severe',
+        prevention: 'Use well-draining soil mix, water only when soil is dry, ensure pot drainage'
+      },
+      {
+        disease: 'Chlorosis (Iron Deficiency)',
+        emoji: '💛', confidence: 78,
+        symptoms: ['Yellow leaves with green veins', 'Pale new growth', 'Reduces vigor'],
+        causes: ['High pH soil', 'Poor drainage', 'Nutrient deficiency'],
+        treatment: 'Apply iron chelate spray, acidify soil, improve drainage',
+        prevention: 'Use appropriate soil pH, fertilize with balanced nutrients'
+      },
+      {
+        disease: 'Late Blight',
+        emoji: '🍅', confidence: 82,
+        symptoms: ['Dark water-soaked spots on leaves', 'White fungal growth on undersides', 'Rapid plant death'],
+        causes: ['Phytophthora infestans fungus', 'Cool, wet weather', 'Poor air circulation'],
+        treatment: 'Remove affected plants immediately, apply copper fungicide, improve drainage',
+        prevention: 'Plant resistant varieties, avoid overhead watering, space plants properly'
+      },
+      {
+        disease: 'Aphid Infestation',
+        emoji: '🐛', confidence: 70,
+        symptoms: ['Clusters of small insects on new growth', 'Sticky honeydew residue', 'Curling leaves'],
+        causes: ['Aphid insects', 'Warm weather', 'Ant presence'],
+        treatment: 'Spray with insecticidal soap, introduce ladybugs, prune heavily infested areas',
+        prevention: 'Regular plant inspection, encourage beneficial insects, avoid excessive nitrogen fertilizer'
+      }
+    ],
+    fr: [
+      {
+        disease: 'Oïdium',
+        emoji: '🤍', confidence: 85,
+        symptoms: ['Revêtement poudreux blanc sur les feuilles', 'Enroulement des feuilles', 'Croissance rabougrie'],
+        causes: ['Infection fongique', 'Conditions chaudes et humides', 'Mauvaise circulation d\'air'],
+        treatment: 'Appliquer un fongicide, améliorer la ventilation, réduire l\'humidité',
+        prevention: 'Maintenir un espacement approprié, arroser au niveau du sol, tailler les zones infectées'
+      },
+      {
+        disease: 'Maladie des taches foliaires',
+        emoji: '🟤', confidence: 80,
+        symptoms: ['Taches brunes/sombres sur les feuilles', 'Halo jaune autour des taches', 'Jaunissement des feuilles'],
+        causes: ['Infection fongique ou bactérienne', 'Humidité persistante des feuilles', 'Mauvais drainage'],
+        treatment: 'Retirer les feuilles infectées, appliquer un fongicide au cuivre, améliorer les habitudes d\'arrosage',
+        prevention: 'Arroser par le bas, éviter l\'arrosage aérien, retirer les feuilles tombées'
+      },
+      {
+        disease: 'Pourriture des racines',
+        emoji: '💀', confidence: 75,
+        symptoms: ['Flétrissement malgré un sol humide', 'Jaunissement des feuilles', 'Racines molles', 'Odeur fétide'],
+        causes: ['Arrosage excessif', 'Mauvais drainage du sol', 'Pathogènes fongiques'],
+        treatment: 'Améliorer le drainage, réduire l\'arrosage, rempoter dans un sol frais si grave',
+        prevention: 'Utiliser un mélange de sol bien drainant, arroser seulement quand le sol est sec, assurer le drainage du pot'
+      },
+      {
+        disease: 'Chlorose (Déficience en fer)',
+        emoji: '💛', confidence: 78,
+        symptoms: ['Feuilles jaunes avec des veines vertes', 'Nouvelle croissance pâle', 'Réduit la vigueur'],
+        causes: ['Sol à pH élevé', 'Mauvais drainage', 'Déficience nutritionnelle'],
+        treatment: 'Appliquer un chélate de fer, acidifier le sol, améliorer le drainage',
+        prevention: 'Utiliser un pH de sol approprié, fertiliser avec des nutriments équilibrés'
+      }
+    ],
+    ar: [
+      {
+        disease: 'البياض الدقيقي',
+        emoji: '🤍', confidence: 85,
+        symptoms: ['طبقة مسحوقية بيضاء على الأوراق', 'انحناء الأوراق', 'نمو متوقف'],
+        causes: ['عدوى فطرية', 'ظروف دافئة ورطبة', 'تدوير هواء سيء'],
+        treatment: 'رش مبيد فطري، تحسين التهوية، تقليل الرطوبة',
+        prevention: 'الحفاظ على المسافات المناسبة، الري عند مستوى التربة، تقليم المناطق المصابة'
+      },
+      {
+        disease: 'مرض البقع الورقية',
+        emoji: '🟤', confidence: 80,
+        symptoms: ['بقع بنية/داكنة على الأوراق', 'هالة صفراء حول البقع', 'اصفرار الأوراق'],
+        causes: ['عدوى فطرية أو بكتيرية', 'رطوبة مستمرة للأوراق', 'تصريف سيء'],
+        treatment: 'إزالة الأوراق المصابة، رش مبيد فطري نحاسي، تحسين عادات الري',
+        prevention: 'الري من الأسفل، تجنب الري العلوي، إزالة الأوراق المتساقطة'
+      },
+      {
+        disease: 'تعفن الجذور',
+        emoji: '💀', confidence: 75,
+        symptoms: ['ذبول رغم تربة رطبة', 'اصفرار الأوراق', 'جذور طرية', 'رائحة كريهة'],
+        causes: ['الإفراط في الري', 'تصريف تربة سيء', 'مسببات فطرية'],
+        treatment: 'تحسين التصريف، تقليل الري، إعادة الزراعة في تربة طازجة إذا كان شديداً',
+        prevention: 'استخدام خليط تربة جيد التصريف، الري فقط عندما تكون التربة جافة، ضمان تصريف الوعاء'
+      },
+      {
+        disease: 'الكلوروز (نقص الحديد)',
+        emoji: '💛', confidence: 78,
+        symptoms: ['أوراق صفراء مع عروق خضراء', 'نمو جديد شاحب', 'يقلل من الحيوية'],
+        causes: ['تربة ذات درجة حموضة عالية', 'تصريف سيء', 'نقص غذائي'],
+        treatment: 'رش كيلات الحديد، تحميض التربة، تحسين التصريف',
+        prevention: 'استخدام درجة حموضة تربة مناسبة، التسميد بمواد غذائية متوازنة'
+      },
+      {
+        disease: 'اللفحة المتأخرة',
+        emoji: '🍅', confidence: 82,
+        symptoms: ['بقع داكنة مبللة بالماء على الأوراق', 'نمو فطري أبيض على الأسطح السفلية', 'موت سريع للنبات'],
+        causes: ['فطر فيتوفثورا إنفيستانس', 'طقس بارد ورطب', 'تدوير هواء سيء'],
+        treatment: 'إزالة النباتات المصابة فوراً، رش مبيد فطري نحاسي، تحسين التصريف',
+        prevention: 'زراعة أصناف مقاومة، تجنب الري العلوي، تباعد النباتات بشكل صحيح'
+      },
+      {
+        disease: 'إصابة المن',
+        emoji: '🐛', confidence: 70,
+        symptoms: ['تجمعات حشرات صغيرة على النمو الجديد', 'بقايا عسل لزج', 'انحناء الأوراق'],
+        causes: ['حشرات المن', 'طقس دافئ', 'وجود النمل'],
+        treatment: 'رش صابون قاتل للحشرات، إدخال الدعسوقة، تقليم المناطق المصابة بشدة',
+        prevention: 'فحص النباتات بانتظام، تشجيع الحشرات المفيدة، تجنب الإفراط في سماد النيتروجين'
+      }
+    ]
+  };
+  
+  const langDiseases = diseases[lang] || diseases['en'];
   
   // If specific disease provided, find it; otherwise return random
-  if (disease) {
-    const found = diseases.find(d => d.disease.toLowerCase() === disease.toLowerCase());
+  if (specificDisease) {
+    const found = langDiseases.find(d => d.disease.toLowerCase() === specificDisease.toLowerCase());
     if (found) return found;
   }
   
-  return diseases[Math.floor(Math.random() * diseases.length)];
+  return langDiseases[Math.floor(Math.random() * langDiseases.length)];
 }
 
 // Local Plant Identification Database
 async function localPlantIdentification(base64, mediaType) {
-  const plants = [
-    {
-      scientificName: "Solanum lycopersicum",
-      commonName: "Tomato",
-      botanicalGenus: "Solanum",
-      description: "A herbaceous, sprawling plant cultivated extensively for its edible fruits. Tomatoes are warm-season annuals that require full sun and well-drained soil.",
-      edibleParts: "fruit",
-      general: { naturalHabitats: "South America (Andes region)", originCountries: "Peru, Bolivia", environmentalBenefits: "Food production, supports pollinator ecosystems", lifeCycle: "Annual", leafRetention: "Deciduous" },
-      physical: { heightCm: "100-200", crownWidthCm: "80-150", growthForm: "Herb", growthStyle: "Indeterminate or determinate" },
-      development: { growthScore: 8, growthRating: "Fast Growth", timeToMatureHeight: "60 days", growthSpeed: "Fast", propagation: "Seed Propagation" },
-      appearance: { leaves: { texture: "Pinnate", colors: ["#228B22"], description: "Deeply lobed compound leaves" }, flowers: { colors: ["#FFD700"], description: "Small yellow flowers in clusters" }, fruits: { description: "Round or elongated red fruits" } },
-      growingConditions: { temperature: { idealCelsius: "20-30", survivesCelsius: "10-35", hardinessZones: "Zone 5-11" }, light: { lightAmount: "8-10", intensity: "40000-60000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-6.8", soilTypes: "Loamy, Well-draining", humidity: "60-70%" }, location: { indoorRooms: "Sunny windowsill (with grow light)", windowDistance: "30cm", outdoorSpots: "Garden, Balcony" } },
-      careGuides: { watering: { spring: "Every 2 days", summer: "Daily", fall: "Every 2 days", winter: "Reduce", waterAmount: "Moderate (Keep consistently moist)" }, pests: { commonPests: "Aphids, Whiteflies, Spider Mites", commonDiseases: "Early Blight, Late Blight, Powdery Mildew", resistantTo: "High humidity-induced fungal issues when well-ventilated", attracts: "Bees, Butterflies, Hornworm predators" } },
-      taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Solanales", family: "Solanaceae", genus: "Solanum", species: "Solanum lycopersicum" }
-    },
-    {
-      scientificName: "Rosa damascena",
-      commonName: "Rose",
-      botanicalGenus: "Rosa",
-      description: "A deciduous woody shrub known for its fragrant, ornamental flowers. Roses are valued for their beauty and are widely cultivated globally.",
-      edibleParts: "petals, hips",
-      general: { naturalHabitats: "Middle East, Asia", originCountries: "Iran, Turkey, India", environmentalBenefits: "Pollinator support, ornamental value", lifeCycle: "Perennial", leafRetention: "Deciduous" },
-      physical: { heightCm: "100-150", crownWidthCm: "80-120", growthForm: "Shrub", growthStyle: "Upright" },
-      development: { growthScore: 7, growthRating: "Average Growth", timeToMatureHeight: "120 days", growthSpeed: "Average", propagation: "Stem Cuttings, Grafting" },
-      appearance: { leaves: { texture: "Pinnate, serrated", colors: ["#2D5016"], description: "Compound leaves with multiple leaflets" }, flowers: { colors: ["#FF69B4", "#FFB6C1"], description: "Large, fragrant, multi-petaled flowers" }, fruits: { description: "Rose hips (seed pods)" } },
-      growingConditions: { temperature: { idealCelsius: "15-25", survivesCelsius: "5-30", hardinessZones: "Zone 4-9" }, light: { lightAmount: "6-8", intensity: "30000-50000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-6.5", soilTypes: "Well-draining loamy soil", humidity: "50-60%" }, location: { indoorRooms: "Bright windowsill", windowDistance: "30cm", outdoorSpots: "Garden beds, Borders" } },
-      careGuides: { watering: { spring: "Every 2 days", summer: "Daily", fall: "Every 3 days", winter: "Reduce", waterAmount: "Moderate" }, pests: { commonPests: "Aphids, Japanese Beetles, Spider Mites", commonDiseases: "Black Spot, Powdery Mildew", resistantTo: "Well-pruned plants resist disease", attracts: "Bees, Butterflies" } },
-      taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Rosales", family: "Rosaceae", genus: "Rosa", species: "Rosa damascena" }
-    },
-    {
-      scientificName: "Cactaceae spp.",
-      commonName: "Cactus",
-      botanicalGenus: "Multiple (Opuntia, Echinocereus, etc.)",
-      description: "Succulent plants adapted to arid environments. Cacti store water in their stems and are characterized by spines instead of leaves.",
-      edibleParts: "fruits, pads",
-      general: { naturalHabitats: "Americas (primarily deserts)", originCountries: "Mexico, USA, South America", environmentalBenefits: "Low water use, drought-resistant landscaping", lifeCycle: "Perennial", leafRetention: "Evergreen (modified)" },
-      physical: { heightCm: "10-400", crownWidthCm: "10-300", growthForm: "Succulent shrub/tree", growthStyle: "Various" },
-      development: { growthScore: 5, growthRating: "Slow Growth", timeToMatureHeight: "365+ days", growthSpeed: "Slow", propagation: "Seed, Cuttings" },
-      appearance: { leaves: { texture: "Spiny (modified leaves)", colors: ["#3D7236", "#4A7C3E"], description: "Thick, fleshy, spine-covered stems" }, flowers: { colors: ["#FF6347", "#FFD700", "#FF1493"], description: "Vibrant flowers bloom from areoles" }, fruits: { description: "Fleshy fruits with seeds" } },
-      growingConditions: { temperature: { idealCelsius: "15-30", survivesCelsius: "5-40", hardinessZones: "Zone 7-11 (varies by species)" }, light: { lightAmount: "6-8", intensity: "40000-70000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-7.5", soilTypes: "Well-draining sandy/rocky soil", humidity: "20-40%" }, location: { indoorRooms: "Sunny windowsill", windowDistance: "Closest possible", outdoorSpots: "Desert garden, rock garden, balcony" } },
-      careGuides: { watering: { spring: "Every 2 weeks", summer: "Every week", fall: "Every 2 weeks", winter: "Monthly", waterAmount: "Minimal (Let dry out completely)" }, pests: { commonPests: "Mealybugs, Scale insects", commonDiseases: "Root rot (from overwatering)", resistantTo: "Most pests in dry conditions", attracts: "Desert wildlife, birds" } },
-      taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Caryophyllales", family: "Cactaceae", genus: "Multiple", species: "Various" }
-    }
-  ];
+  const plants = {
+    en: [
+      {
+        scientificName: "Solanum lycopersicum",
+        commonName: "Tomato",
+        botanicalGenus: "Solanum",
+        description: "A herbaceous, sprawling plant cultivated extensively for its edible fruits. Tomatoes are warm-season annuals that require full sun and well-drained soil.",
+        edibleParts: "fruit",
+        general: { naturalHabitats: "South America (Andes region)", originCountries: "Peru, Bolivia", environmentalBenefits: "Food production, supports pollinator ecosystems", lifeCycle: "Annual", leafRetention: "Deciduous" },
+        physical: { heightCm: "100-200", crownWidthCm: "80-150", growthForm: "Herb", growthStyle: "Indeterminate or determinate" },
+        development: { growthScore: 8, growthRating: "Fast Growth", timeToMatureHeight: "60 days", growthSpeed: "Fast", propagation: "Seed Propagation" },
+        appearance: { leaves: { texture: "Pinnate", colors: ["#228B22"], description: "Deeply lobed compound leaves" }, flowers: { colors: ["#FFD700"], description: "Small yellow flowers in clusters" }, fruits: { description: "Round or elongated red fruits" } },
+        growingConditions: { temperature: { idealCelsius: "20-30", survivesCelsius: "10-35", hardinessZones: "Zone 5-11" }, light: { lightAmount: "8-10", intensity: "40000-60000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-6.8", soilTypes: "Loamy, Well-draining", humidity: "60-70%" }, location: { indoorRooms: "Sunny windowsill (with grow light)", windowDistance: "30cm", outdoorSpots: "Garden, Balcony" } },
+        careGuides: { watering: { spring: "Every 2 days", summer: "Daily", fall: "Every 2 days", winter: "Reduce", waterAmount: "Moderate (Keep consistently moist)" }, pests: { commonPests: "Aphids, Whiteflies, Spider Mites", commonDiseases: "Early Blight, Late Blight, Powdery Mildew", resistantTo: "High humidity-induced fungal issues when well-ventilated", attracts: "Bees, Butterflies, Hornworm predators" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Solanales", family: "Solanaceae", genus: "Solanum", species: "Solanum lycopersicum" }
+      },
+      {
+        scientificName: "Rosa damascena",
+        commonName: "Rose",
+        botanicalGenus: "Rosa",
+        description: "A deciduous woody shrub known for its fragrant, ornamental flowers. Roses are valued for their beauty and are widely cultivated globally.",
+        edibleParts: "petals, hips",
+        general: { naturalHabitats: "Middle East, Asia", originCountries: "Iran, Turkey, India", environmentalBenefits: "Pollinator support, ornamental value", lifeCycle: "Perennial", leafRetention: "Deciduous" },
+        physical: { heightCm: "100-150", crownWidthCm: "80-120", growthForm: "Shrub", growthStyle: "Upright" },
+        development: { growthScore: 7, growthRating: "Average Growth", timeToMatureHeight: "120 days", growthSpeed: "Average", propagation: "Stem Cuttings, Grafting" },
+        appearance: { leaves: { texture: "Pinnate, serrated", colors: ["#2D5016"], description: "Compound leaves with multiple leaflets" }, flowers: { colors: ["#FF69B4", "#FFB6C1"], description: "Large, fragrant, multi-petaled flowers" }, fruits: { description: "Rose hips (seed pods)" } },
+        growingConditions: { temperature: { idealCelsius: "15-25", survivesCelsius: "5-30", hardinessZones: "Zone 4-9" }, light: { lightAmount: "6-8", intensity: "30000-50000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-6.5", soilTypes: "Well-draining loamy soil", humidity: "50-60%" }, location: { indoorRooms: "Bright windowsill", windowDistance: "30cm", outdoorSpots: "Garden beds, Borders" } },
+        careGuides: { watering: { spring: "Every 2 days", summer: "Daily", fall: "Every 3 days", winter: "Reduce", waterAmount: "Moderate" }, pests: { commonPests: "Aphids, Japanese Beetles, Spider Mites", commonDiseases: "Black Spot, Powdery Mildew", resistantTo: "Well-pruned plants resist disease", attracts: "Bees, Butterflies" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Rosales", family: "Rosaceae", genus: "Rosa", species: "Rosa damascena" }
+      },
+      {
+        scientificName: "Cactaceae spp.",
+        commonName: "Cactus",
+        botanicalGenus: "Multiple (Opuntia, Echinocereus, etc.)",
+        description: "Succulent plants adapted to arid environments. Cacti store water in their stems and are characterized by spines instead of leaves.",
+        edibleParts: "fruits, pads",
+        general: { naturalHabitats: "Americas (primarily deserts)", originCountries: "Mexico, USA, South America", environmentalBenefits: "Low water use, drought-resistant landscaping", lifeCycle: "Perennial", leafRetention: "Evergreen (modified)" },
+        physical: { heightCm: "10-400", crownWidthCm: "10-300", growthForm: "Succulent shrub/tree", growthStyle: "Various" },
+        development: { growthScore: 5, growthRating: "Slow Growth", timeToMatureHeight: "365+ days", growthSpeed: "Slow", propagation: "Seed, Cuttings" },
+        appearance: { leaves: { texture: "Spiny (modified leaves)", colors: ["#3D7236", "#4A7C3E"], description: "Thick, fleshy, spine-covered stems" }, flowers: { colors: ["#FF6347", "#FFD700", "#FF1493"], description: "Vibrant flowers bloom from areoles" }, fruits: { description: "Fleshy fruits with seeds" } },
+        growingConditions: { temperature: { idealCelsius: "15-30", survivesCelsius: "5-40", hardinessZones: "Zone 7-11 (varies by species)" }, light: { lightAmount: "6-8", intensity: "40000-70000", preferredLight: "Full Sun" }, soilWater: { soilPh: "6.0-7.5", soilTypes: "Well-draining sandy/rocky soil", humidity: "20-40%" }, location: { indoorRooms: "Sunny windowsill", windowDistance: "Closest possible", outdoorSpots: "Desert garden, rock garden, balcony" } },
+        careGuides: { watering: { spring: "Every 2 weeks", summer: "Every week", fall: "Every 2 weeks", winter: "Monthly", waterAmount: "Minimal (Let dry out completely)" }, pests: { commonPests: "Mealybugs, Scale insects", commonDiseases: "Root rot (from overwatering)", resistantTo: "Most pests in dry conditions", attracts: "Desert wildlife, birds" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Caryophyllales", family: "Cactaceae", genus: "Multiple", species: "Various" }
+      }
+    ],
+    fr: [
+      {
+        scientificName: "Solanum lycopersicum",
+        commonName: "Tomate",
+        botanicalGenus: "Solanum",
+        description: "Plante herbacée rampante cultivée extensivement pour ses fruits comestibles. Les tomates sont des annuelles de saison chaude qui nécessitent un plein soleil et un sol bien drainé.",
+        edibleParts: "fruit",
+        general: { naturalHabitats: "Amérique du Sud (région des Andes)", originCountries: "Pérou, Bolivie", environmentalBenefits: "Production alimentaire, soutient les écosystèmes pollinisateurs", lifeCycle: "Annuel", leafRetention: "Décidue" },
+        physical: { heightCm: "100-200", crownWidthCm: "80-150", growthForm: "Herbe", growthStyle: "Indéterminé ou déterminé" },
+        development: { growthScore: 8, growthRating: "Croissance Rapide", timeToMatureHeight: "60 jours", growthSpeed: "Rapide", propagation: "Propagation par graines" },
+        appearance: { leaves: { texture: "Pennée", colors: ["#228B22"], description: "Feuilles composées profondément lobées" }, flowers: { colors: ["#FFD700"], description: "Petites fleurs jaunes en grappes" }, fruits: { description: "Fruits ronds ou allongés rouges" } },
+        growingConditions: { temperature: { idealCelsius: "20-30", survivesCelsius: "10-35", hardinessZones: "Zone 5-11" }, light: { lightAmount: "8-10", intensity: "40000-60000", preferredLight: "Plein Soleil" }, soilWater: { soilPh: "6.0-6.8", soilTypes: "Argileux, Bien drainant", humidity: "60-70%" }, location: { indoorRooms: "Rebord de fenêtre ensoleillé (avec lampe de croissance)", windowDistance: "30cm", outdoorSpots: "Jardin, Balcon" } },
+        careGuides: { watering: { spring: "Tous les 2 jours", summer: "Quotidien", fall: "Tous les 2 jours", winter: "Réduire", waterAmount: "Modéré (Garder constamment humide)" }, pests: { commonPests: "Pucerons, Aleurodes, Tétranyques", commonDiseases: "Brûlure précoce, Brûlure tardive, Oïdium", resistantTo: "Problèmes fongiques induits par l'humidité élevée lorsqu'elle est bien ventilée", attracts: "Abeilles, Papillons, Prédateurs de la chenille cornue" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Solanales", family: "Solanaceae", genus: "Solanum", species: "Solanum lycopersicum" }
+      }
+    ],
+    ar: [
+      {
+        scientificName: "Solanum lycopersicum",
+        commonName: "طماطم",
+        botanicalGenus: "سولانوم",
+        description: "نبات عشبي متمدد يُزرع على نطاق واسع لثماره القابلة للأكل. الطماطم نباتات سنوية موسم دافئ تحتاج إلى شمس كاملة وتربة جيدة التصريف.",
+        edibleParts: "الثمرة",
+        general: { naturalHabitats: "أمريكا الجنوبية (منطقة الأنديز)", originCountries: "بيرو، بوليفيا", environmentalBenefits: "إنتاج غذائي، يدعم النظم البيئية للملقحات", lifeCycle: "سنوي", leafRetention: "متساقطة الأوراق" },
+        physical: { heightCm: "100-200", crownWidthCm: "80-150", growthForm: "عشب", growthStyle: "غير محدد أو محدد" },
+        development: { growthScore: 8, growthRating: "نمو سريع", timeToMatureHeight: "60 يوم", growthSpeed: "سريع", propagation: "الانتشار بالبذور" },
+        appearance: { leaves: { texture: "ريشي", colors: ["#228B22"], description: "أوراق مركبة عميقة التلألؤ" }, flowers: { colors: ["#FFD700"], description: "زهور صفراء صغيرة في مجموعات" }, fruits: { description: "ثمار مستديرة أو ممدودة حمراء" } },
+        growingConditions: { temperature: { idealCelsius: "20-30", survivesCelsius: "10-35", hardinessZones: "المنطقة 5-11" }, light: { lightAmount: "8-10", intensity: "40000-60000", preferredLight: "شمس كاملة" }, soilWater: { soilPh: "6.0-6.8", soilTypes: "طينية، جيدة التصريف", humidity: "60-70%" }, location: { indoorRooms: "حافة نافذة مشمسة (مع مصباح نمو)", windowDistance: "30 سم", outdoorSpots: "حديقة، شرفة" } },
+        careGuides: { watering: { spring: "كل يومين", summer: "يومياً", fall: "كل يومين", winter: "تقليل", waterAmount: "متوسط (الحفاظ على رطوبة مستمرة)" }, pests: { commonPests: "المن، الذبابة البيضاء، العناكب", commonDiseases: "اللفحة المبكرة، اللفحة المتأخرة، البياض الدقيقي", resistantTo: "مشاكل فطرية ناتجة عن الرطوبة العالية عند التهوية الجيدة", attracts: "النحل، الفراشات، مفترسات الديدان القرنية" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Solanales", family: "Solanaceae", genus: "Solanum", species: "Solanum lycopersicum" }
+      },
+      {
+        scientificName: "Rosa damascena",
+        commonName: "وردة",
+        botanicalGenus: "روزا",
+        description: "شجيرة خشبية متساقطة الأوراق معروفة بزهورها العطرية الزخرفية. الورود مقدرة لجمالها وتُزرع على نطاق واسع عالمياً.",
+        edibleParts: "بتلات، وركات",
+        general: { naturalHabitats: "الشرق الأوسط، آسيا", originCountries: "إيران، تركيا، الهند", environmentalBenefits: "دعم الملقحات، قيمة زخرفية", lifeCycle: "دائم الخضرة", leafRetention: "متساقطة الأوراق" },
+        physical: { heightCm: "100-150", crownWidthCm: "80-120", growthForm: "شجيرة", growthStyle: "منتصب" },
+        development: { growthScore: 7, growthRating: "نمو متوسط", timeToMatureHeight: "120 يوم", growthSpeed: "متوسط", propagation: "قصاصات السيقان، التطعيم" },
+        appearance: { leaves: { texture: "ريشي، مسنن", colors: ["#2D5016"], description: "أوراق مركبة مع وريقات متعددة" }, flowers: { colors: ["#FF69B4", "#FFB6C1"], description: "زهور كبيرة عطرية متعددة البتلات" }, fruits: { description: "وركات الورد (بذور)" } },
+        growingConditions: { temperature: { idealCelsius: "15-25", survivesCelsius: "5-30", hardinessZones: "المنطقة 4-9" }, light: { lightAmount: "6-8", intensity: "30000-50000", preferredLight: "شمس كاملة" }, soilWater: { soilPh: "6.0-6.5", soilTypes: "تربة طينية جيدة التصريف", humidity: "50-60%" }, location: { indoorRooms: "حافة نافذة مشرقة", windowDistance: "30 سم", outdoorSpots: "أسرة حديقة، حدود" } },
+        careGuides: { watering: { spring: "كل يومين", summer: "يومياً", fall: "كل 3 أيام", winter: "تقليل", waterAmount: "متوسط" }, pests: { commonPests: "المن، خنافس اليابان، العناكب", commonDiseases: "البقع السوداء، البياض الدقيقي", resistantTo: "النباتات المقلمة جيداً تقاوم المرض", attracts: "النحل، الفراشات" } },
+        taxonomy: { kingdom: "Plantae", phylum: "Tracheophyta", class: "Eudicots", order: "Rosales", family: "Rosaceae", genus: "Rosa", species: "Rosa damascena" }
+      }
+    ]
+  };
+  
+  const langPlants = plants[currentLang] || plants['en'];
   
   // Return random plant info for now
-  return plants[Math.floor(Math.random() * plants.length)];
+  return langPlants[Math.floor(Math.random() * langPlants.length)];
 }
 
 async function simulateAnalysis() {
